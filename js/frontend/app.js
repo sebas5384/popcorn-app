@@ -263,9 +263,11 @@ jQuery(function ($) {
     win.close(true);
   });
 
-  $('.popcorn-quit .cancel').click(function(event){
-    $('.popcorn-quit').addClass('hidden');
+  $('#add-media a').click(function (event) {
+    
   });
+
+
 
   //Pagination html
   var pagination = '<nav class="pagination hidden"><ul><li class="active"><a data-page="1" href="#">1</a></li><li><a data-page="2" class="inactive" href="#">2</a></li><li><a data-page="3" class="inactive" href="#">3</a></li><li><a data-page="4" class="inactive" href="#">4</a></li><li><a data-page="5" class="inactive" href="#">5</a></li></ul></nav>';

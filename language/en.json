@@ -7,6 +7,7 @@
 	"searchLoading": "Searching...",
 	"noResults": "No results found for your query.",
 	"search": "Search",
+	"torrentUrl": "Torrent Url (.torrent)",
 	"movies": "Movies",
 	"subtitledIn": "Subtitled in",
 	"quality": "Quality",

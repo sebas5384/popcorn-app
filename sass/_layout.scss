@@ -189,7 +189,7 @@ a { text-decoration: none; }
   position: absolute;
   top: $header_height;
   padding: 20px;
-  height: calc(100% - #{$header_height});
+  height: calc(100% - #{$header_height} - 40px);
   background: #121212;
   border-right: 1px solid #000;
   font-family: 'Myriad Pro', 'Lucida Grande', sans-serif;
@@ -254,6 +254,36 @@ a { text-decoration: none; }
       right: 10px;
       color: rgba(255, 255, 255, 0.4);
     }
+  }
+}
+  
+#add-media {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+
+  a {
+    position: relative;
+    text-transform: uppercase;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+  }
+
+  i {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  input {
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 5px;
+    color: #FFF;
+    font-size: 12px;
+    height: 15px;
+    padding: 8px 10px;
+    width: 115px;
+    background: transparent;
+    display: none;
   }
 }
 

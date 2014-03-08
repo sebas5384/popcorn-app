@@ -465,7 +465,7 @@ a {
   position: absolute;
   top: 45px;
   padding: 20px;
-  height: calc(100% - 45px);
+  height: calc(100% - 45px - 40px);
   background: #121212;
   border-right: 1px solid #000;
   font-family: 'Myriad Pro', 'Lucida Grande', sans-serif;
@@ -564,6 +564,33 @@ a {
   color: rgba(255, 255, 255, 0.4);
 }
 
+#add-media {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+}
+#add-media a {
+  position: relative;
+  text-transform: uppercase;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+}
+#add-media i {
+  color: rgba(255, 255, 255, 0.4);
+}
+#add-media input {
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 5px;
+  color: #FFF;
+  font-size: 12px;
+  height: 15px;
+  padding: 8px 10px;
+  width: 115px;
+  background: transparent;
+  display: none;
+}
+
 .container {
   height: calc(100% - 45px);
   overflow: hidden;
@@ -624,7 +651,7 @@ body.has-notification #notification {
   display: block;
   height: 45px;
   margin: 10px auto;
-  -webkit-animation: 1.05s spin  infinite linear;
+  -webkit-animation: 1.05s spin infinite linear;
   width: 45px;
 }
 .popcorn-load .progressbar {
