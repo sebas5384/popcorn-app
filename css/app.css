@@ -564,33 +564,6 @@ a {
   color: rgba(255, 255, 255, 0.4);
 }
 
-#add-media {
-  position: absolute;
-  left: 0px;
-  bottom: 0px;
-}
-#add-media a {
-  position: relative;
-  text-transform: uppercase;
-  color: #fff;
-  text-align: center;
-  width: 100%;
-}
-#add-media i {
-  color: rgba(255, 255, 255, 0.4);
-}
-#add-media input {
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 5px;
-  color: #FFF;
-  font-size: 12px;
-  height: 15px;
-  padding: 8px 10px;
-  width: 115px;
-  background: transparent;
-  display: none;
-}
-
 .container {
   height: calc(100% - 45px);
   overflow: hidden;
@@ -729,6 +702,16 @@ body.has-notification #notification {
 .popcorn-disclaimer.hidden {
   opacity: 0;
   pointer-events: none;
+}
+.popcorn-disclaimer.quitting .text, .popcorn-disclaimer.quitting .btn {
+  opacity: 0.0;
+  pointer-events: none;
+}
+.popcorn-disclaimer .text, .popcorn-disclaimer .btn {
+  -webkit-transition: opacity 2s ease-out;
+  -moz-transition: opacity 2s ease-out;
+  -o-transition: opacity 2s ease-out;
+  transition: opacity 2s ease-out;
 }
 .popcorn-disclaimer .wrapper {
   -webkit-transform: translateY(-50%);
@@ -1196,6 +1179,18 @@ body.has-notification #notification {
   transform: scale(1, 1);
 }
 
+.no-results {
+  text-align: center;
+  font-size: 24px;
+  opacity: 0.6;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  left: 0;
+  right: 0;
+  -webkit-transform: translateY(-50%);
+}
+
 .pagination {
   border-radius: 4px;
   display: block;
@@ -1256,6 +1251,7 @@ sidebar {
   -webkit-transform-style: preserve-3d;
   animation: sidebareffect .5s;
   -webkit-animation: sidebareffect .5s;
+  -webkit-transform: translateZ(0);
 }
 sidebar.hidden {
   right: -10px;
@@ -1319,8 +1315,8 @@ sidebar .play:hover a.play-over {
   display: block;
 }
 sidebar .play .backdrop-image {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=40);
-  opacity: 0.4;
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=20);
+  opacity: 0.2;
   display: block;
   position: absolute;
   top: 0;
@@ -1329,7 +1325,6 @@ sidebar .play .backdrop-image {
   height: 100%;
   background-size: cover;
   z-index: -1;
-  -webkit-filter: blur(10px);
   background-position: center;
 }
 sidebar .play a.play-over {
@@ -1450,6 +1445,7 @@ sidebar .play .movie-detail .poster-cont .movie-config .quality-cont {
   margin-left: 1px;
   text-shadow: 0 0 2px #000;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 100%);
+  -webkit-transform: translateZ(0);
 }
 sidebar .play .movie-detail .poster-cont .movie-config .quality-cont .quality-off {
   margin-left: 10px;
@@ -1900,6 +1896,7 @@ sidebar .play .movie-detail .side-content a.play-button:hover {
 }
 #video_player.video-js .vjs-text-track-display {
   font-size: 1em;
+  pointer-events: none;
 }
 #video_player.video-js .vjs-loading-spinner {
   font-size: 1em;
@@ -1912,6 +1909,10 @@ sidebar .play .movie-detail .side-content a.play-button:hover {
 }
 #video_player.video-js .vjs-menu-item {
   color: #000;
+}
+
+body.watching #header, body.watching #notification, body.watching #catalog-select, body.watching .container {
+  visibility: hidden;
 }
 
 .torrent-health {
