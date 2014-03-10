@@ -377,6 +377,57 @@ jQuery(function ($) {
     }
   });
 
+  // Load .torrent file.
+  $('#add-media a').on('shown.bs.popover', function () {
+    $('#add-media input').keyup(function (e) { 
+      if (e.keyCode == 13) {
+
+        $('#add-media a').popover('hide');
+
+        // Load with progress bar.
+        $('.popcorn-load').addClass('withProgressBar').addClass('cancellable').find('.progress').css('width', 0.0+'%');
+        $('.popcorn-load .progressinfo').text( i18n.__('connecting') );
+        App.loader(true, i18n.__('loadingVideo'));
+        $('body').removeClass().addClass('loading');
+
+        var file = $(this).val(),
+            movieModel = {},
+            subsFiles = [],
+            subsFile,
+            subtitle,
+            previousStatus = '';
+
+        playTorrent(file, subsFiles, movieModel,
+          function(){}, 
+          function(percent) {
+              // Loading Progress Handler. Percent is 5% + Actual progress, to keep the progressbar moving even when it's at the min-width
+              var $progress = $('.popcorn-load').find('.progress');
+              var minWidth = parseFloat($progress.css('min-width'));
+              percent = minWidth + percent * ((100.0-minWidth)/100.0);
+              percent = percent > 100.0 ? 100.0 : percent;
+              $('.popcorn-load').find('.progress').css('width', percent+'%');
+
+              // Update the loader status
+              var bufferStatus = 'connecting';
+              if (videoPeerflix.peers.length > 0) {
+                bufferStatus = 'startingDownload';
+                if (videoPeerflix.downloaded > 0) {
+                  bufferStatus = 'downloading';
+                }
+              }
+              
+              if (bufferStatus != previousStatus) {
+                // userTracking.event('Video Preloading', bufferStatus, movieModel.get('niceTitle')).send();
+                previousStatus = bufferStatus;
+              }
+              
+              $('.popcorn-load .progressinfo').text( i18n.__(bufferStatus) );
+          }
+        );
+      }
+    });
+  });
+
   //Catalog switch
   $('#catalog-select ul li a').on('click', function (evt) {
     $('#catalog-select ul li.active').removeClass('active');
