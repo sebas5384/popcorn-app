@@ -48,10 +48,23 @@ App.loader(true, i18n.__('loading'));
 
 
 // Handler for Video opening
-window.spawnCallback = function (url, subs, movieModel) { console.log(url, 'URL');
+window.spawnCallback = function (url, subs, movieModel) {
+
+    // Sort sub according lang translation
+    var subArray = [];
+    for (lang in subs) {
+        subArray.push({
+            'language': Languages[lang],
+            'sub': subs[lang]
+        });
+    }
+    subArray.sort(function (sub1, sub2) {
+        return sub1.language.localeCompare(sub2.language);
+    });
+
     var subtracks = '';
-    for( lang in subs ) {
-      subtracks += '<track kind="subtitles" src="app://host/' + subs[lang] + '" srclang="'+ lang +'" label="' + i18n.__(lang) + '" charset="utf-8" />';
+    for( index in subArray ) {
+      subtracks += '<track kind="subtitles" src="app://host/' + subArray[index].sub + '" srclang="es" label="' + subArray[index].language + '" charset="utf-8" />';
     }
 
     var player =
@@ -182,6 +195,8 @@ window.spawnCallback = function (url, subs, movieModel) { console.log(url, 'URL'
     tracks = video.textTracks();
     for( var i in tracks ) {
       tracks[i].on('loaded', function(){
+        // Trigger a resize to get the subtitles position right
+        $(window).trigger('resize'); 
         // userTracking.event('Video Subtitles', 'Select '+ this.language_, movieModel.get('niceTitle') ).send();
       });
     }
@@ -332,6 +347,10 @@ jQuery(function ($) {
     win.close(true);
   });
 
+  $('.popcorn-quit .cancel').click(function(event){
+    $('.popcorn-quit').addClass('hidden');
+  });
+
   // Add media (torrent file).
   $('#add-media a').click(function(event){
     event.preventDefault();
@@ -358,60 +377,6 @@ jQuery(function ($) {
     }
   });
 
-  // Load .torrent file.
-  $('#add-media a').on('shown.bs.popover', function () {
-    $('#add-media input').keyup(function (e) { 
-      if (e.keyCode == 13) {
-
-        $('#add-media a').popover('hide');
-
-        // Load with progress bar.
-        $('.popcorn-load').addClass('withProgressBar').addClass('cancellable').find('.progress').css('width', 0.0+'%');
-        $('.popcorn-load .progressinfo').text( i18n.__('connecting') );
-        App.loader(true, i18n.__('loadingVideo'));
-        $('body').removeClass().addClass('loading');
-
-        var file = $(this).val(),
-            movieModel = {},
-            subsFiles = [],
-            subsFile,
-            subtitle,
-            previousStatus = '';
-
-        playTorrent(file, subsFiles, movieModel,
-          function(){}, 
-          function(percent) {
-              // Loading Progress Handler. Percent is 5% + Actual progress, to keep the progressbar moving even when it's at the min-width
-              var $progress = $('.popcorn-load').find('.progress');
-              var minWidth = parseFloat($progress.css('min-width'));
-              percent = minWidth + percent * ((100.0-minWidth)/100.0);
-              percent = percent > 100.0 ? 100.0 : percent;
-              $('.popcorn-load').find('.progress').css('width', percent+'%');
-
-              // Update the loader status
-              var bufferStatus = 'connecting';
-              if (videoPeerflix.peers.length > 0) {
-                bufferStatus = 'startingDownload';
-                if (videoPeerflix.downloaded > 0) {
-                  bufferStatus = 'downloading';
-                }
-              }
-              
-              if (bufferStatus != previousStatus) {
-                // userTracking.event('Video Preloading', bufferStatus, movieModel.get('niceTitle')).send();
-                previousStatus = bufferStatus;
-              }
-              
-              $('.popcorn-load .progressinfo').text( i18n.__(bufferStatus) );
-          }
-        );
-      }
-    });
-  });
-
-  //Pagination html
-  var pagination = '<nav class="pagination hidden"><ul><li class="active"><a data-page="1" href="#">1</a></li><li><a data-page="2" class="inactive" href="#">2</a></li><li><a data-page="3" class="inactive" href="#">3</a></li><li><a data-page="4" class="inactive" href="#">4</a></li><li><a data-page="5" class="inactive" href="#">5</a></li></ul></nav>';
-
   //Catalog switch
   $('#catalog-select ul li a').on('click', function (evt) {
     $('#catalog-select ul li.active').removeClass('active');
@@ -427,20 +392,8 @@ jQuery(function ($) {
     evt.preventDefault();
   });
 
-  //Pagination buttons
-  $( document ).on( "click", ".pagination a", function(event) {
-    var page = $(this).attr('data-page');
-    var genre = $("#catalog-select ul li.active a").attr("data-genre");
-    App.Router.navigate('filter/' + genre + '/' + page, { trigger: true });
-    $(".pagination li").removeClass('active');
-    $(".pagination li").eq(page-1).addClass('active');
-    event.preventDefault();
-  });
-
   // Add route callback to router
   App.Router.on('route', function () {
-    // Append pagination HTML
-    $("#category-list").append(pagination);
     // Ensure sidebar is hidden
     App.sidebar.hide();
   });
@@ -457,6 +410,17 @@ jQuery(function ($) {
         }
         $('#catalog-select ul li.active').removeClass('active');
       }
+  });
+  
+  $('.search i').on('click', function (evt) {
+    var term = $.trim($('.search input').val());
+
+    if (term) {
+      App.Router.navigate('search/' + term, { trigger: true });
+    } else {
+      App.Router.navigate('index.html', { trigger: true });
+    }
+    $('#catalog-select ul li.active').removeClass('active');
   });
 
   $('body').on('keypress', function (evt) {
