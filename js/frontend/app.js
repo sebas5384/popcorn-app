@@ -48,7 +48,7 @@ App.loader(true, i18n.__('loading'));
 
 
 // Handler for Video opening
-window.spawnCallback = function (url, subs, movieModel) {
+window.spawnCallback = function (url, subs, movieModel) { console.log(url, 'URL');
     var subtracks = '';
     for( lang in subs ) {
       subtracks += '<track kind="subtitles" src="app://host/' + subs[lang] + '" srclang="'+ lang +'" label="' + i18n.__(lang) + '" charset="utf-8" />';
@@ -151,18 +151,18 @@ window.spawnCallback = function (url, subs, movieModel) {
     var video = videojs('video_player', { plugins: { biggerSubtitle : {}, smallerSubtitle : {} }});
 
     
-    userTracking.pageview('/movies/watch/'+movieModel.get('slug'), movieModel.get('niceTitle') ).send();
+    // userTracking.pageview('/movies/watch/'+movieModel.get('slug'), movieModel.get('niceTitle') ).send();
 
     
     // Enter full-screen
     $('.vjs-fullscreen-control').on('click', function () {
       if(win.isFullscreen) {
         win.leaveFullscreen();
-        userTracking.event('Video Size', 'Normal', movieModel.get('niceTitle') ).send();
+        // userTracking.event('Video Size', 'Normal', movieModel.get('niceTitle') ).send();
         win.focus();
       } else {
         win.enterFullscreen();
-        userTracking.event('Video Size', 'Fullscreen', movieModel.get('niceTitle') ).send();
+        // userTracking.event('Video Size', 'Fullscreen', movieModel.get('niceTitle') ).send();
         win.focus();
       }
     });
@@ -172,7 +172,7 @@ window.spawnCallback = function (url, subs, movieModel) {
       if (e.keyCode == 27) { 
         if(win.isFullscreen) {
           win.leaveFullscreen();
-          userTracking.event('Video Size', 'Normal', movieModel.get('niceTitle') ).send();
+          // userTracking.event('Video Size', 'Normal', movieModel.get('niceTitle') ).send();
           win.focus();
         }
       }
@@ -182,7 +182,7 @@ window.spawnCallback = function (url, subs, movieModel) {
     tracks = video.textTracks();
     for( var i in tracks ) {
       tracks[i].on('loaded', function(){
-        userTracking.event('Video Subtitles', 'Select '+ this.language_, movieModel.get('niceTitle') ).send();
+        // userTracking.event('Video Subtitles', 'Select '+ this.language_, movieModel.get('niceTitle') ).send();
       });
     }
     
@@ -206,7 +206,7 @@ window.spawnCallback = function (url, subs, movieModel) {
       
       if( typeof video == 'undefined' || video == null ){ clearInterval(statusReportInterval); return; }
       
-      userTracking.event('Video Playing', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
+      // userTracking.event('Video Playing', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
       
     }, 1000*60*10);
     
@@ -217,10 +217,10 @@ window.spawnCallback = function (url, subs, movieModel) {
       // Determine if the user quit because he watched the entire movie
       // Give 15 minutes or 15% of the movie for credits (everyone quits there)
       if( video.duration() > 0 && video.currentTime() >= Math.min(video.duration() * 0.85, video.duration() - 15*60) ) {
-        userTracking.event('Video Finished', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
+        // userTracking.event('Video Finished', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
       }
       else {
-        userTracking.event('Video Quit', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
+        // userTracking.event('Video Quit', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
       }
       
       // Clear the status report interval so it doesn't leak
@@ -332,11 +332,82 @@ jQuery(function ($) {
     win.close(true);
   });
 
-  $('#add-media a').click(function (event) {
-    
+  // Add media (torrent file).
+  $('#add-media a').click(function(event){
+    event.preventDefault();
+  });
+  $('#add-media a').popover({
+    'html': true,
+    'placement': 'top auto',
+    'content': function () {
+      var content = $('#add-media .popover-content').html();
+      $(content).css('display', 'block');
+      return content;
+    }
+  });
+  // Hide popover.
+  $('body').on('click', function (e) {
+    if (!$('#add-media a').is(e.target)
+      && $('#add-media a').has(e.target).length === 0
+      && $('.popover').has(e.target).length === 0) {
+      $('#add-media a').popover('hide');
+    }
+  }).keyup(function (e) {
+    if (e.keyCode == 27) {
+      $('#add-media a').popover('hide');
+    }
   });
 
+  // Load .torrent file.
+  $('#add-media a').on('shown.bs.popover', function () {
+    $('#add-media input').keyup(function (e) { 
+      if (e.keyCode == 13) {
 
+        $('#add-media a').popover('hide');
+
+        // Load with progress bar.
+        $('.popcorn-load').addClass('withProgressBar').addClass('cancellable').find('.progress').css('width', 0.0+'%');
+        $('.popcorn-load .progressinfo').text( i18n.__('connecting') );
+        App.loader(true, i18n.__('loadingVideo'));
+        $('body').removeClass().addClass('loading');
+
+        var file = $(this).val(),
+            movieModel = {},
+            subsFiles = [],
+            subsFile,
+            subtitle,
+            previousStatus = '';
+
+        playTorrent(file, subsFiles, movieModel,
+          function(){}, 
+          function(percent) {
+              // Loading Progress Handler. Percent is 5% + Actual progress, to keep the progressbar moving even when it's at the min-width
+              var $progress = $('.popcorn-load').find('.progress');
+              var minWidth = parseFloat($progress.css('min-width'));
+              percent = minWidth + percent * ((100.0-minWidth)/100.0);
+              percent = percent > 100.0 ? 100.0 : percent;
+              $('.popcorn-load').find('.progress').css('width', percent+'%');
+
+              // Update the loader status
+              var bufferStatus = 'connecting';
+              if (videoPeerflix.peers.length > 0) {
+                bufferStatus = 'startingDownload';
+                if (videoPeerflix.downloaded > 0) {
+                  bufferStatus = 'downloading';
+                }
+              }
+              
+              if (bufferStatus != previousStatus) {
+                // userTracking.event('Video Preloading', bufferStatus, movieModel.get('niceTitle')).send();
+                previousStatus = bufferStatus;
+              }
+              
+              $('.popcorn-load .progressinfo').text( i18n.__(bufferStatus) );
+          }
+        );
+      }
+    });
+  });
 
   //Pagination html
   var pagination = '<nav class="pagination hidden"><ul><li class="active"><a data-page="1" href="#">1</a></li><li><a data-page="2" class="inactive" href="#">2</a></li><li><a data-page="3" class="inactive" href="#">3</a></li><li><a data-page="4" class="inactive" href="#">4</a></li><li><a data-page="5" class="inactive" href="#">5</a></li></ul></nav>';

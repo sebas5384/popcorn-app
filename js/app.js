@@ -362,7 +362,6 @@ var playTorrent = window.playTorrent = function (torrent, subs, movieModel, call
 
     // Start Peerflix
     var peerflix = require('peerflix');
-    
     videoPeerflix = peerflix(torrent, {
         // Set the custom temp file
         path: tmpFile,
@@ -377,7 +376,6 @@ var playTorrent = window.playTorrent = function (torrent, subs, movieModel, call
 
         flix.server.on('listening', function () {
             var href = 'http://127.0.0.1:' + flix.server.address().port + '/';
-
             loadedTimeout ? clearTimeout(loadedTimeout) : null;
 
             var checkLoadingProgress = function () {
