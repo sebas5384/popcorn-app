@@ -47,14 +47,12 @@
 		"war": "Guerra",
 		"western": "Western"
 	},
-	"english": "english",
 	"portuguese": "portuguese",
 	"dutch": "dutch",
+	"english": "english",
 	"french": "french",
-	"italian": "italian",
 	"romanian": "romanian",
 	"spanish": "spanish",
 	"turkish": "turkish",
-	"torrentUrl": "torrentUrl",
-	"addMedia": "addMedia"
+	"italian": "italian"
 }
